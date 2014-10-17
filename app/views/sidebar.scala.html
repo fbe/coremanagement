@@ -1,0 +1,58 @@
+@import menu.treeview.TreeElement
+
+@simpleMainNavEntry(target: String, name: String, iconCssClass: String = "fa-th")= {
+    <li>
+        <a ui-sref="@target">
+            <i class="fa @iconCssClass"></i> <span>@name</span>
+        </a>
+    </li>
+}
+
+@treeView(name: String, icon: String, trees: TreeElement*) = {
+    <li class="treeview">
+        <a href="#">
+            <i class="fa @icon"></i> <span>@name</span>
+            <i class="fa fa-angle-left pull-right"></i>
+        </a>
+        <ul class="treeview-menu">
+        @for(node <- trees){
+            <li><a ui-sref="@node.target"><i class="fa fa-angle-double-right"></i> @node.name</a></li>
+        }
+
+        </ul>
+    </li>
+}
+
+@()
+<!-- sidebar: style can be found in sidebar.less -->
+<!-- Left side column. contains the logo and sidebar -->
+<aside class="left-side sidebar-offcanvas" ng-controller="sidebarCtrl">
+    <section class="sidebar">
+        @userpanel()
+                <!-- search form -->
+                <!--<form action="#" method="get" class="sidebar-form">
+                            <div class="input-group">
+                                <input type="text" name="q" class="form-control" placeholder="Search..."/>
+                                <span class="input-group-btn">
+                                    <button type='submit' name='seach' id='search-btn' class="btn btn-flat"><i class="fa fa-search"></i></button>
+                                </span>
+                            </div>
+                        </form>-->
+                <!-- /.search form -->
+                <!-- sidebar menu: : style can be found in sidebar.less -->
+            <ul class="sidebar-menu">
+
+                @simpleMainNavEntry("ordermanagement", "Order Management", "fa-th")
+                @simpleMainNavEntry("taskmanagement", "Task Management", "fa-dashboard")
+                @simpleMainNavEntry("pages/widgets.html", "GFKL", "fa-dashboard")
+
+                @treeView("System", "fa-laptop",
+                    TreeElement("system.cronjobs", "Cronjobs"),
+                    TreeElement("system.stores", "Stores")
+                )
+
+
+    </ul>
+    </section>
+</aside>
+    <!-- /.sidebar -->
