@@ -24,4 +24,18 @@ libraryDependencies ++= Seq(
   "org.hornetq" % "hornetq-native" % "2.4.4.Final" from "http://repo1.maven.org/maven2/org/hornetq/hornetq-native/2.4.4.Final/hornetq-native-2.4.4.Final.jar"
 )
 
+seq(jasmineSettings : _*)
 
+appJsDir <+= sourceDirectory { src => src / "main" / "webapp" / "static" / "js" }
+
+appJsLibDir <+= sourceDirectory { src => src / "main" / "webapp" / "static" / "js" / "lib" }
+
+jasmineTestDir <+= baseDirectory { _ / "test" / "js" }
+
+jasmineConfFile <+= baseDirectory { _ / "test" / "js" / "test.dependencies.js" }
+
+//jasmineRequireJsFile <+= sourceDirectory { src => src / "main" / "webapp" / "static" / "js" / "lib" / "require" / "require-2.0.6.js" }
+
+//jasmineRequireConfFile <+= sourceDirectory { src => src / "test" / "js" / "require.conf.js" }
+
+(test in Test) <<= (test in Test) dependsOn (jasmine)
