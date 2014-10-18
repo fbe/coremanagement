@@ -2,25 +2,8 @@
  * Created by becker on 10/15/14.
  */
 
-var douglasServicesModules = angular.module('douglas.services', []);
-douglasServicesModules.factory('pageTitleService', function() {
-    return {
-        pageTitleBig: "Foo",
-        pageTitleSmall: "Bar"
-    };
-});
 
-
-var app = angular.module("coremanagement", ['ui.router', 'douglas.services']);
-
-app.controller("bodyCtrl", function($scope, $rootScope, pageTitleService) {
-    $scope.hello = "World, AngularJS";
-    $scope.pageTitleBig = pageTitleService.pageTitleBig;
-    $scope.pageTitleSmall = pageTitleService.pageTitleSmall;
-});
-
-app.controller("sidebarCtrl", function($scope,pageTitleService){
-});
+var app = angular.module("coremanagement", ['ui.router']);
 
 app.directive('updateTitle', function($rootScope, $timeout) {
     return {
@@ -39,6 +22,33 @@ app.directive('updateTitle', function($rootScope, $timeout) {
         }
     }
 });
+
+app.config(["$httpProvider", function($httpProvider) {
+    var interceptor = ["$rootScope", "$q", "$timeout", function($rootScope, $q, $timeout, $window) {
+        return function(promise) {
+            return promise.then(
+                function(response) {
+                    return response;
+                },
+                function(response) {
+                    if (response.status == 401) {
+                        $rootScope.$broadcast("InvalidToken");
+                        $rootScope.sessionExpired = true;
+                        $timeout(function() {$rootScope.sessionExpired = false;}, 5000);
+                        alert('401');
+                    } else if (response.status == 403) {
+                        $rootScope.$broadcast("InsufficientPrivileges");
+                        alert('403');
+                    } else {
+                        // Here you could handle other status codes, e.g. retry a 404
+                    }
+                    return $q.reject(response);
+                }
+            );
+        };
+    }];
+    $httpProvider.responseInterceptors.push(interceptor);
+}]);
 
 app.config(function($stateProvider, $urlRouterProvider) {
 
@@ -92,4 +102,18 @@ app.config(function($stateProvider, $urlRouterProvider) {
             templateUrl: 'assets/partials/taskmanagement.html'
         });
 
+});
+
+app.controller("bodyCtrl", function($scope, $http) {
+
+    $http.get('/sampleJson').
+        success(function(data, status, headers, config) {
+            $scope.sampleJson = data
+        });
+
+
+    $scope.hello = "World, AngularJS";
+});
+
+app.controller("sidebarCtrl", function($scope){
 });
